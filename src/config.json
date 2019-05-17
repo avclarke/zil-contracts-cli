@@ -1,0 +1,12 @@
+{
+  "networks": {
+    "testnet": {
+      "url": "https://dev-api.zilliqa.com",
+      "version": 21823489
+    },
+    "kaya": {
+      "url": "http://localhost:4200",
+      "version": 0
+    }
+  }
+}
