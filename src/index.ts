@@ -15,6 +15,7 @@ program
   .version('0.1.0')
   .option('-p, --private-key <path>', 'Private Key')
   .option('-a, --abi-dir <path>', 'Path to ABI folder')
+  .option('-c, --contracts-dir <path>', 'Path to scilla contracts')
   .option('-r, --rpc-url <url>', 'Set Zil JSON RPC URL')
   .option('-n, --network <string>', 'Network name (mainnet, testnet, kaya)')
   .parse(process.argv)
@@ -35,10 +36,11 @@ const inputAddress = async (): Promise<string> => {
   return answers.address
 }
 
-const interactWithContract = async (zilliqa: Zilliqa): Promise<Contract> => {
+const interactWithContract = async (zilliqa: Zilliqa): Promise<void> => {
   const abi = await selectABI()
   const address = await inputAddress()
-  return new Contract(zilliqa, abi, address)
+  const contract = new Contract(zilliqa, abi, address)
+  await contract.selectAction()
 }
 
 const requestPrivateKey = async (): Promise<string> => {
@@ -87,7 +89,7 @@ const setupZil = async (url: string): Promise<Zilliqa> => {
   return zilliqa
 }
 
-const run = async (): void => {
+const run = async (): Promise<void> => {
   try {
     const NETWORKS: { [key: string]: NetworkConfig } = CONFIG.networks
 

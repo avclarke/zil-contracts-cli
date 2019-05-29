@@ -6,7 +6,7 @@ interface Chalk {
 
 type LogInput = string | Record<string, any> | undefined
 
-const stringify = (value: LogInput): string => {
+const stringify = (value: LogInput): string | undefined => {
   if (typeof value === 'object') {
     return JSON.stringify(value)
   }

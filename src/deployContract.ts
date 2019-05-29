@@ -1,11 +1,12 @@
 import { Zilliqa } from '@zilliqa-js/zilliqa'
 import { ABI, Field } from '@zilliqa-js/contract'
 import { RPCMethod } from '@zilliqa-js/core'
-import { Long, bytes, units, BN } from '@zilliqa-js/util'
+import { Long, bytes } from '@zilliqa-js/util'
 import { selectScillaContract, selectABI } from './fileReader'
 import { prompt } from 'inquirer'
 
 import log from './logger'
+import { inputGasValues } from './transaction'
 
 interface InitParam {
   vname: string
@@ -53,31 +54,6 @@ const constructInit = async (abi: ABI): Promise<Array<InitParam>> => {
     })
   }
   return init
-}
-
-const inputGasValues = async (
-  zilliqa: Zilliqa,
-): Promise<{ gasLimit: Long; gasPrice: BN }> => {
-  const minGasPrice = await zilliqa.blockchain.getMinimumGasPrice()
-  log.header('Set Gas Price')
-  log.info('Min gas price: ', minGasPrice.result)
-  const answers: { [key: string]: string } = await prompt([
-    {
-      type: 'input',
-      name: 'gasPrice',
-      message: `Gas price:`,
-      default: '1000',
-    },
-    {
-      type: 'input',
-      name: 'gasLimit',
-      message: `Gas limit:`,
-      default: '200000',
-    },
-  ])
-  const gasLimit = Long.fromNumber(Number(answers.gasLimit))
-  const gasPrice = units.toQa(answers.gasPrice, units.Units.Li)
-  return { gasLimit, gasPrice }
 }
 
 export const deployContract = async (zilliqa: Zilliqa): Promise<void> => {

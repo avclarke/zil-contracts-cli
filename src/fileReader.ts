@@ -4,11 +4,43 @@ import program from 'commander'
 import { prompt } from 'inquirer'
 import { ABI } from '@zilliqa-js/contract'
 
-export const selectScillaContract = async (): Promise<string> => {
-  let dir = './contracts'
-  const fileName = 'CrowdFunding.scilla'
+const readFiles = async (dirPath: string, extension: string) => {
+  return fs
+    .readdirSync(dirPath)
+    .reduce((acc: Array<string>, file: string): Array<string> => {
+      if (file.endsWith(extension)) {
+        acc.push(file.replace(extension, ''))
+      }
+      return acc
+    }, [])
+}
 
-  const filePath = path.resolve(dir, fileName)
+export const selectScillaContract = async (): Promise<string> => {
+  let contractsPath = program.contractsPath
+  if (!contractsPath) {
+    const answers: { contractsPath: string } = await prompt([
+      {
+        type: 'input',
+        name: 'contractsPath',
+        message: `Path to folder containing scilla contracts: `,
+      },
+    ])
+    contractsPath = answers.contractsPath
+  }
+
+  const files = await readFiles(contractsPath, '.scilla')
+
+  const answers: { fileName: string } = await prompt([
+    {
+      type: 'list',
+      name: 'fileName',
+      message: 'Select contract file: ',
+      choices: files,
+    },
+  ])
+  const { fileName } = answers
+
+  const filePath = path.resolve(contractsPath, `${fileName}.scilla`)
   return fs.readFile(filePath, 'utf8')
 }
 
@@ -25,14 +57,7 @@ export const selectABI = async (): Promise<ABI> => {
     abiPath = answers.abiPath
   }
 
-  const files = fs
-    .readdirSync(abiPath)
-    .reduce((acc: Array<string>, file: string): Array<string> => {
-      if (file.endsWith('.json')) {
-        acc.push(file.replace('.json', ''))
-      }
-      return acc
-    }, [])
+  const files = await readFiles(abiPath, '.json')
 
   const answers: { fileName: string } = await prompt([
     {
